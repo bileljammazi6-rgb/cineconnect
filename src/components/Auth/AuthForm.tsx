@@ -18,6 +18,9 @@ export function AuthForm() {
     e.preventDefault();
     setLoading(true);
 
+    // Debug logging
+    console.log('Form submission:', { isSignUp, email: email ? 'exists' : 'missing' });
+
     // Client-side validation for sign-up
     if (isSignUp) {
       // Username validation
@@ -38,11 +41,16 @@ export function AuthForm() {
     }
 
     try {
+      console.log('Attempting auth operation...');
       if (isSignUp) {
-        await signUp(email, password, username);
+        const result = await signUp(email, password, username);
+        console.log('Sign up result:', result);
       } else {
-        await signIn(email, password);
+        const result = await signIn(email, password);
+        console.log('Sign in result:', result);
       }
+    } catch (error) {
+      console.error('Auth error:', error);
     } finally {
       setLoading(false);
     }
