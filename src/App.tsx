@@ -8,7 +8,7 @@ import { MoviesSection } from './components/Movies/MoviesSection';
 import { QuotesSection } from './components/Quotes/QuotesSection';
 import { LocationMap } from './components/Location/LocationMap';
 import { ChatWindow } from './components/Chat/ChatWindow';
-import { TicTacToe } from './components/Games/TicTacToe';
+
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { UserProfile } from './components/Profile/UserProfile';
 import { SocialFeed } from './components/Social/SocialFeed';
@@ -98,10 +98,12 @@ function App() {
       case 'games':
         return (
           <div className="p-6 bg-gray-50 min-h-full">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Games</h2>
-              <div className="flex justify-center">
-                <TicTacToe />
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">Games</h2>
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <div className="text-6xl mb-4">🎮</div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">Games Coming Soon!</h3>
+                <p className="text-gray-500">Exciting games will be available in future updates.</p>
               </div>
             </div>
           </div>
