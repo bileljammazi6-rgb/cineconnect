@@ -38,7 +38,7 @@ A modern, full-featured social platform for movie enthusiasts with real-time cha
 
 1. **Create a Supabase project** at [supabase.com](https://supabase.com)
 2. **Go to SQL Editor** in your Supabase dashboard
-3. **Copy and paste** the entire content from `production_database_complete.sql`
+3. **Copy and paste** the entire content from `database/schema.sql`
 4. **Run the script** - this creates all tables, policies, triggers, and storage buckets
 
 ### 2. Get API Keys
@@ -127,7 +127,7 @@ OPENAI_API_KEY=your-openai-key-here
 
 ### 3. Database Setup
 
-Run the `production_database_complete.sql` script in your Supabase SQL Editor.
+Run the `database/schema.sql` script in your Supabase SQL Editor.
 
 ### 4. Start Development
 
