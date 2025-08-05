@@ -57,8 +57,9 @@ export function useAuth() {
       }
       
       return { data, error: null };
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign up';
+      toast.error(errorMessage);
       return { data: null, error };
     }
   };
@@ -72,8 +73,9 @@ export function useAuth() {
 
       if (error) throw error;
       return { data, error: null };
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign in';
+      toast.error(errorMessage);
       return { data: null, error };
     }
   };
@@ -82,8 +84,9 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign out';
+      toast.error(errorMessage);
     }
   };
 

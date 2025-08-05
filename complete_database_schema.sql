@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   bio text,
   location text,
   website text,
+  last_seen timestamptz,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
@@ -59,10 +60,11 @@ CREATE POLICY "Users can read visible locations"
 CREATE TABLE IF NOT EXISTS messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   sender_id uuid REFERENCES users(id) ON DELETE CASCADE,
-  recipient_id uuid REFERENCES users(id) ON DELETE CASCADE,
+  receiver_id uuid REFERENCES users(id) ON DELETE CASCADE,
   content text NOT NULL,
   message_type text DEFAULT 'text',
   metadata jsonb,
+  read boolean DEFAULT false,
   created_at timestamptz DEFAULT now()
 );
 
@@ -72,12 +74,18 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view their own messages"
   ON messages
   FOR SELECT
-  USING (auth.uid() = sender_id OR auth.uid() = recipient_id);
+  USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
 
 CREATE POLICY "Users can send messages"
   ON messages
   FOR INSERT
   WITH CHECK (auth.uid() = sender_id);
+
+CREATE POLICY "Users can update message read status"
+  ON messages
+  FOR UPDATE
+  USING (auth.uid() = receiver_id)
+  WITH CHECK (auth.uid() = receiver_id);
 
 CREATE POLICY "Users can delete their own sent messages"
   ON messages

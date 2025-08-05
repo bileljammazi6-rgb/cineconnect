@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 export function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -16,6 +17,25 @@ export function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Client-side validation for sign-up
+    if (isSignUp) {
+      // Username validation
+      const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+      if (!usernameRegex.test(username.trim())) {
+        toast.error('Username must be 3-20 characters long and contain only letters, numbers, and underscores');
+        setLoading(false);
+        return;
+      }
+
+      // Password validation
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        toast.error('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character');
+        setLoading(false);
+        return;
+      }
+    }
 
     try {
       if (isSignUp) {
@@ -70,6 +90,10 @@ export function AuthForm() {
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Enter your username"
+                  pattern="^[a-zA-Z0-9_]{3,20}$"
+                  minLength={3}
+                  maxLength={20}
+                  title="Username must be 3-20 characters long and contain only letters, numbers, and underscores"
                   required={isSignUp}
                 />
               </div>
@@ -105,6 +129,9 @@ export function AuthForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 placeholder="Enter your password"
+                minLength={isSignUp ? 8 : undefined}
+                pattern={isSignUp ? "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" : undefined}
+                title={isSignUp ? "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character" : undefined}
                 required
               />
               <button

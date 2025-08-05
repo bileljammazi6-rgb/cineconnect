@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface LocationData {
@@ -51,8 +51,8 @@ export function useLocation() {
       }
 
       toast.success('Location detected successfully!');
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to get location';
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get location';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

@@ -149,11 +149,13 @@ export function LocationMap() {
     userLocations.forEach(userLoc => {
       const el = document.createElement('div');
       el.className = 'user-location-marker';
-      el.innerHTML = `
-        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform">
-          ${userLoc.username.charAt(0).toUpperCase()}
-        </div>
-      `;
+      
+      // Create marker element safely without innerHTML
+      const markerDiv = document.createElement('div');
+      markerDiv.className = 'w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg cursor-pointer transform hover:scale-110 transition-transform';
+      // Safely set text content to prevent XSS
+      markerDiv.textContent = userLoc.username.charAt(0).toUpperCase();
+      el.appendChild(markerDiv);
       
       el.addEventListener('click', () => setSelectedUser(userLoc));
 
@@ -165,13 +167,25 @@ export function LocationMap() {
     // Add current user marker if location is available
     if (location && user) {
       const currentUserEl = document.createElement('div');
-      currentUserEl.innerHTML = `
-        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold shadow-xl border-4 border-white animate-pulse">
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-          </svg>
-        </div>
-      `;
+      
+      // Create current user marker element safely without innerHTML
+      const currentMarkerDiv = document.createElement('div');
+      currentMarkerDiv.className = 'w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold shadow-xl border-4 border-white animate-pulse';
+      
+      // Create SVG element programmatically
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'w-6 h-6');
+      svg.setAttribute('fill', 'currentColor');
+      svg.setAttribute('viewBox', '0 0 20 20');
+      
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('fill-rule', 'evenodd');
+      path.setAttribute('d', 'M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z');
+      path.setAttribute('clip-rule', 'evenodd');
+      
+      svg.appendChild(path);
+      currentMarkerDiv.appendChild(svg);
+      currentUserEl.appendChild(currentMarkerDiv);
 
       new (window as any).mapboxgl.Marker(currentUserEl)
         .setLngLat([location.longitude, location.latitude])

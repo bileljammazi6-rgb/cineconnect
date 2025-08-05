@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 // Configuration
 const CONFIG = {
-  TMDB_API_KEY: "0a7ef230ab60a26cca44c7d8a6d24c25",
+  TMDB_API_KEY: import.meta.env.VITE_TMDB_API_KEY || "",
   TMDB_BASE_URL: "https://api.themoviedb.org/3",
   TMDB_IMAGE_BASE_URL: "https://image.tmdb.org/t/p/"
 };
