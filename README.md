@@ -40,6 +40,7 @@ A modern, full-featured social platform for movie enthusiasts with real-time cha
 2. **Go to SQL Editor** in your Supabase dashboard
 3. **Copy and paste** the entire content from `database/schema.sql`
 4. **Run the script** - this creates all tables, policies, triggers, and storage buckets
+5. **(Optional)** Run `VACUUM ANALYZE;` separately for performance optimization
 
 ### 2. Get API Keys
 

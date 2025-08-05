@@ -538,8 +538,8 @@ CREATE POLICY "Users can upload message images"
 -- PERFORMANCE OPTIMIZATIONS
 -- ===============================================
 
--- Vacuum and analyze tables for better performance
-VACUUM ANALYZE;
+-- Note: Run VACUUM ANALYZE manually after setup for better performance
+-- VACUUM ANALYZE; -- Run this separately in Supabase SQL Editor
 
 -- Create composite indexes for complex queries
 CREATE INDEX IF NOT EXISTS idx_messages_unread_conversation 

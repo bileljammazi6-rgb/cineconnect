@@ -17,8 +17,19 @@ This folder contains the database schema for CineConnect.
 2. Go to **SQL Editor** in your Supabase dashboard
 3. Copy and paste the entire content from `schema.sql`
 4. Run the script to create all database objects
+5. **(Optional)** For better performance, run `VACUUM ANALYZE;` separately
 
 The script is idempotent and safe to run multiple times.
+
+### Performance Optimization
+
+After running the main schema, optionally run this command separately for better performance:
+
+```sql
+VACUUM ANALYZE;
+```
+
+This command optimizes the database tables and updates statistics for the query planner.
 
 ## What's Created
 
