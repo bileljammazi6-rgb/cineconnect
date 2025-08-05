@@ -390,6 +390,8 @@ CREATE POLICY "Users can update their attendance" ON event_attendees FOR UPDATE 
 CREATE POLICY "Users can leave events" ON event_attendees FOR DELETE USING (auth.uid() = user_id);
 
 
+DROP FUNCTION IF EXISTS increment_quote_likes(uuid);
+
 -- Function to increment quote likes
 CREATE OR REPLACE FUNCTION increment_quote_likes(quote_id uuid)
 RETURNS void AS $$
