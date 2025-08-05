@@ -47,27 +47,14 @@ export function Chatbot() {
     setIsLoading(true);
 
     try {
-      // Call OpenAI API (this should be done through your backend for security)
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Call secure serverless function instead of direct OpenAI API
+      const response = await fetch('/.netlify/functions/chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful entertainment assistant for a movie/anime/series platform. You can recommend content, answer questions about movies and shows, help users discover new content, and provide general assistance. Be friendly, enthusiastic, and knowledgeable about entertainment.'
-            },
-            {
-              role: 'user',
-              content: userMessage.content
-            }
-          ],
-          max_tokens: 500,
-          temperature: 0.7
+          message: userMessage.content
         })
       });
 
@@ -76,7 +63,13 @@ export function Chatbot() {
       }
 
       const data = await response.json();
-      const botResponse = data.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
+      
+      // Handle fallback responses
+      if (data.fallback) {
+        throw new Error('AI service unavailable');
+      }
+      
+      const botResponse = data.response || "I'm sorry, I couldn't process that request.";
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),

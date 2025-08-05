@@ -59,6 +59,9 @@ VITE_TMDB_API_KEY=your_tmdb_api_key_here
 
 # Mapbox Configuration (optional)
 VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_access_token_here
+
+# OpenAI API Configuration (optional - for AI chatbot)
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
 ### 2. Configure Netlify Environment Variables
@@ -69,6 +72,7 @@ VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_access_token_here
    - `VITE_SUPABASE_ANON_KEY`
    - `VITE_TMDB_API_KEY`
    - `VITE_MAPBOX_ACCESS_TOKEN` (if using maps)
+   - `OPENAI_API_KEY` (optional - for AI chatbot)
 
 ### 3. Deploy to Netlify
 
@@ -113,7 +117,9 @@ Should return no rows.
 ### 2. API Key Security
 - ✅ TMDB API key is now using environment variables
 - ✅ Supabase keys are environment variables
+- ✅ OpenAI API key secured in serverless function
 - ✅ No hardcoded secrets in the codebase
+- ✅ Fallback chatbot works without OpenAI API
 
 ### 3. Content Security Policy (Optional)
 Add to your `netlify.toml`:
@@ -158,10 +164,27 @@ VALUES ('same-id', 'same-id', 'test'); -- Should fail
 - [ ] RLS policies are working
 - [ ] Authentication is functional
 - [ ] File uploads work
+- [ ] Chatbot responds (fallback mode works without OpenAI)
 - [ ] No hardcoded secrets in code
 - [ ] HTTPS is enabled (automatic on Netlify)
 - [ ] Site loads without errors
 - [ ] All features tested
+
+## 🤖 Chatbot Configuration
+
+### Option 1: Smart Fallback Mode (Default - No API Key Needed)
+The chatbot is pre-configured with intelligent responses covering:
+- Movie and show recommendations
+- Platform feature explanations
+- General entertainment guidance
+- Interactive conversations
+
+### Option 2: OpenAI-Powered Mode (Optional)
+To enable AI-powered responses:
+1. Get OpenAI API key from [platform.openai.com](https://platform.openai.com)
+2. Add `OPENAI_API_KEY` to Netlify environment variables
+3. The secure serverless function will handle API calls
+4. Falls back to smart responses if API fails
 
 ## 🔧 Troubleshooting
 
