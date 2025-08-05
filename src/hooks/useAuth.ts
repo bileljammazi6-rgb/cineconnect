@@ -11,6 +11,12 @@ export function useAuth() {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      
+      // Create user profile if it doesn't exist
+      if (session?.user) {
+        createUserProfile(session.user);
+      }
+      
       setLoading(false);
     });
 
@@ -22,8 +28,9 @@ export function useAuth() {
 
         if (event === 'SIGNED_IN') {
           toast.success('Welcome back!');
-          // Update last seen
+          // Create user profile and update last seen
           if (session?.user) {
+            await createUserProfile(session.user);
             await supabase
               .from('users')
               .update({ last_seen: new Date().toISOString() })
@@ -37,6 +44,34 @@ export function useAuth() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const createUserProfile = async (user: User) => {
+    try {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (!existingUser) {
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            id: user.id,
+            email: user.email,
+            username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (error && error.code !== '23505') { // Ignore duplicate key errors
+          console.error('Error creating user profile:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in createUserProfile:', error);
+    }
+  };
 
   const signUp = async (email: string, password: string, username: string) => {
     try {

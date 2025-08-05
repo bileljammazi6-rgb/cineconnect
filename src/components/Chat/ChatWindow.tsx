@@ -18,10 +18,10 @@ interface User {
 interface Message {
   id: string;
   sender_id: string;
-  receiver_id: string;
+  recipient_id: string;
   content: string;
   created_at: string;
-  read: boolean;
+  read?: boolean;
 }
 
 interface ChatWindowProps {
@@ -54,7 +54,7 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
       const { data, error } = await supabase
         .from('messages')
         .select('*')
-        .or(`and(sender_id.eq.${user?.id},receiver_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},receiver_id.eq.${user?.id})`)
+        .or(`and(sender_id.eq.${user?.id},recipient_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},recipient_id.eq.${user?.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -65,7 +65,7 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
         .from('messages')
         .update({ read: true })
         .eq('sender_id', selectedUser.id)
-        .eq('receiver_id', user?.id)
+        .eq('recipient_id', user?.id)
         .eq('read', false);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -83,7 +83,7 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `or(and(sender_id.eq.${user?.id},receiver_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},receiver_id.eq.${user?.id}))`,
+          filter: `or(and(sender_id.eq.${user?.id},recipient_id.eq.${selectedUser.id}),and(sender_id.eq.${selectedUser.id},recipient_id.eq.${user?.id}))`,
         },
         (payload) => {
           setMessages((prev) => [...prev, payload.new as Message]);
@@ -105,7 +105,7 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
         .from('messages')
         .insert({
           sender_id: user.id,
-          receiver_id: selectedUser.id,
+          recipient_id: selectedUser.id,
           content: content.trim(),
         });
 

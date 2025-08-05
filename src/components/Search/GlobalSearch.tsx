@@ -86,18 +86,18 @@ export function GlobalSearch({ onSelectResult }: GlobalSearchProps) {
 
       // Search users
       const { data: users } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .ilike('username', `%${query}%`)
         .limit(5);
 
-      users?.forEach(profile => {
+      users?.forEach(userProfile => {
         searchResults.push({
-          id: profile.id,
+          id: userProfile.id,
           type: 'user',
-          title: profile.username,
-          subtitle: profile.bio?.substring(0, 50) || 'No bio',
-          data: profile
+          title: userProfile.username,
+          subtitle: userProfile.bio?.substring(0, 50) || 'No bio',
+          data: userProfile
         });
       });
 
@@ -105,8 +105,8 @@ export function GlobalSearch({ onSelectResult }: GlobalSearchProps) {
       if (user) {
         const { data: messages } = await supabase
           .from('messages')
-          .select('*, profiles(username)')
-          .eq('user_id', user.id)
+          .select('*, users(username)')
+          .eq('sender_id', user.id)
           .ilike('content', `%${query}%`)
           .limit(3);
 

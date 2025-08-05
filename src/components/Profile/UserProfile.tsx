@@ -35,7 +35,7 @@ export function UserProfile() {
   const fetchProfile = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('id', user?.id)
         .single();
@@ -61,21 +61,21 @@ export function UserProfile() {
   const fetchStats = async () => {
     try {
       const [messagesResult, quotesResult, gamesResult] = await Promise.all([
-        supabase.from('messages').select('id').eq('user_id', user?.id),
+        supabase.from('messages').select('id').eq('sender_id', user?.id),
         supabase.from('quotes').select('id').eq('user_id', user?.id),
-        supabase.from('games').select('id, winner').or(`player_x_profile_id.eq.${user?.id},player_o_profile_id.eq.${user?.id}`)
+        supabase.from('tic_tac_toe_games').select('id, winner, player_x, player_o').or(`player_x.eq.${user?.id},player_o.eq.${user?.id}`)
       ]);
 
       const gamesWon = gamesResult.data?.filter(game => 
-        (game.winner === 'X' && game.player_x_profile_id === user?.id) ||
-        (game.winner === 'O' && game.player_o_profile_id === user?.id)
+        (game.winner === 'X' && game.player_x === user?.id) ||
+        (game.winner === 'O' && game.player_o === user?.id)
       ).length || 0;
 
       setStats({
         totalMessages: messagesResult.data?.length || 0,
         totalQuotes: quotesResult.data?.length || 0,
         gamesWon,
-        joinedDate: user?.created_at || ''
+        joinedDate: profile?.created_at || user?.created_at || ''
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -85,7 +85,7 @@ export function UserProfile() {
   const handleSave = async () => {
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from('users')
         .upsert({
           id: user?.id,
           ...formData,

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 // Configuration
 const CONFIG = {
-  TMDB_API_KEY: "0a7ef230ab60a26cca44c7d8a6d24c25",
+  TMDB_API_KEY: import.meta.env.VITE_TMDB_API_KEY || "0a7ef230ab60a26cca44c7d8a6d24c25",
   TMDB_BASE_URL: "https://api.themoviedb.org/3",
   TMDB_IMAGE_BASE_URL: "https://image.tmdb.org/t/p/"
 };
@@ -167,16 +167,16 @@ export function MoviesSection() {
     setLoading(true);
     try {
       const moviePromises = movieData.map(movie => 
-        tmdbService.searchMulti(movie.title).catch(error => {
+        tmdbService.searchMulti(movie.title).catch(() => {
           console.error(`Error loading ${movie.title}:`, error);
-          return null;
+          return { results: [] };
         })
       );
       
       const comingSoonPromises = comingSoonMovies.map(movie => 
-        tmdbService.searchMulti(movie).catch(error => {
+        tmdbService.searchMulti(movie).catch(() => {
           console.error(`Error loading ${movie}:`, error);
-          return null;
+          return { results: [] };
         })
       );
       
@@ -195,7 +195,12 @@ export function MoviesSection() {
       
       setMovies(processedMovies);
       setComingSoon(processedComingSoon);
-      toast.success('Movies loaded successfully!');
+      
+      if (processedMovies.length > 0) {
+        toast.success('Movies loaded successfully!');
+      } else {
+        toast.error('Failed to load movies from TMDB API');
+      }
     } catch (error) {
       console.error('Error loading movies:', error);
       toast.error('Error loading movies');
