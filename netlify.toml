@@ -10,6 +10,16 @@
   to = "/index.html"
   status = 200
 
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+
 [context.production.environment]
   NODE_ENV = "production"
 
