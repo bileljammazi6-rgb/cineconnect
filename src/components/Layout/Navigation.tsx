@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, Quote, Gamepad2, Shield, LogOut, Film, MapPin, User, Home, Bot } from 'lucide-react';
+import { MessageCircle, Quote, Gamepad2, Shield, LogOut, Film, MapPin, User, Home, Bot, Bug } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { NotificationCenter } from '../Notifications/NotificationCenter';
 import { GlobalSearch } from '../Search/GlobalSearch';
@@ -23,6 +23,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
     { id: 'chatbot', label: 'AI Assistant', icon: Bot },
     { id: 'games', label: 'Games', icon: Gamepad2 },
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'debug', label: 'Debug', icon: Bug },
     ...(isAdmin ? [{ id: 'admin', label: 'Admin', icon: Shield }] : []),
   ];
 

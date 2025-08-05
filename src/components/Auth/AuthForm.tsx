@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
 export function AuthForm() {
@@ -11,15 +12,59 @@ export function AuthForm() {
   const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
 
   const { signIn, signUp } = useAuth();
+
+  // Test Supabase connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        console.log('🔍 Testing Supabase connection...');
+        console.log('Environment check:', {
+          VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+          VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'EXISTS' : 'MISSING',
+        });
+
+        // Test basic connection
+        const { data, error } = await supabase.from('users').select('count').limit(1);
+        
+        if (error) {
+          console.error('❌ Supabase connection failed:', error);
+          setConnectionStatus('failed');
+          toast.error(`Database connection failed: ${error.message}`);
+        } else {
+          console.log('✅ Supabase connection successful');
+          setConnectionStatus('connected');
+        }
+      } catch (err) {
+        console.error('❌ Connection test error:', err);
+        setConnectionStatus('failed');
+        toast.error('Failed to connect to database');
+      }
+    };
+
+    testConnection();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     // Debug logging
-    console.log('Form submission:', { isSignUp, email: email ? 'exists' : 'missing' });
+    console.log('🚀 Form submission:', { 
+      isSignUp, 
+      email: email ? 'EXISTS' : 'MISSING',
+      password: password ? 'EXISTS' : 'MISSING',
+      username: isSignUp ? (username ? 'EXISTS' : 'MISSING') : 'N/A'
+    });
+
+    // Check connection first
+    if (connectionStatus === 'failed') {
+      toast.error('Database connection failed. Please check console for details.');
+      setLoading(false);
+      return;
+    }
 
     // Client-side validation for sign-up
     if (isSignUp) {
@@ -41,16 +86,17 @@ export function AuthForm() {
     }
 
     try {
-      console.log('Attempting auth operation...');
+      console.log('🔐 Attempting auth operation...');
       if (isSignUp) {
         const result = await signUp(email, password, username);
-        console.log('Sign up result:', result);
+        console.log('📝 Sign up result:', result);
       } else {
         const result = await signIn(email, password);
-        console.log('Sign in result:', result);
+        console.log('🔑 Sign in result:', result);
       }
     } catch (error) {
-      console.error('Auth error:', error);
+      console.error('❌ Auth error:', error);
+      toast.error(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

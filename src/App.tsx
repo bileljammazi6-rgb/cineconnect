@@ -13,6 +13,7 @@ import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { UserProfile } from './components/Profile/UserProfile';
 import { SocialFeed } from './components/Social/SocialFeed';
 import { ChatbotFallbackOnly } from './components/Chat/ChatbotFallbackOnly';
+import { DiagnosticPanel } from './components/Debug/DiagnosticPanel';
 
 interface User {
   id: string;
@@ -59,6 +60,12 @@ function App() {
             <div className="max-w-4xl mx-auto h-[calc(100vh-200px)]">
               <ChatbotFallbackOnly />
             </div>
+          </div>
+        );
+      case 'debug':
+        return (
+          <div className="p-6 bg-gray-50 min-h-full">
+            <DiagnosticPanel />
           </div>
         );
       case 'chat':

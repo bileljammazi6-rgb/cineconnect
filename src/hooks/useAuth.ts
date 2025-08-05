@@ -40,6 +40,7 @@ export function useAuth() {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
+      console.log('🔄 Starting sign up process...');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -50,14 +51,21 @@ export function useAuth() {
         },
       });
 
-      if (error) throw error;
+      console.log('📊 Sign up response:', { data: !!data, error: error?.message });
+
+      if (error) {
+        console.error('❌ Sign up error:', error);
+        throw error;
+      }
       
       if (data.user) {
+        console.log('✅ User created successfully');
         toast.success('Account created successfully!');
       }
       
       return { data, error: null };
     } catch (error: unknown) {
+      console.error('❌ Sign up catch block:', error);
       const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign up';
       toast.error(errorMessage);
       return { data: null, error };
@@ -66,14 +74,21 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('🔄 Starting sign in process...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      console.log('📊 Sign in response:', { data: !!data, error: error?.message });
+
+      if (error) {
+        console.error('❌ Sign in error:', error);
+        throw error;
+      }
       return { data, error: null };
     } catch (error: unknown) {
+      console.error('❌ Sign in catch block:', error);
       const errorMessage = error instanceof Error ? error.message : 'An error occurred during sign in';
       toast.error(errorMessage);
       return { data: null, error };
