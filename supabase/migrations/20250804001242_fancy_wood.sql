@@ -19,7 +19,7 @@
 
 CREATE TABLE IF NOT EXISTS notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type text NOT NULL CHECK (type IN ('message', 'game', 'quote', 'location', 'system')),
   title text NOT NULL,
   message text NOT NULL,
