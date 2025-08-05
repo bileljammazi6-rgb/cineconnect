@@ -1,27 +1,73 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "npm ci && npm run build"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_ENV = "production"
 
+# Production context
+[context.production]
+  command = "npm ci && npm run build"
+  
+[context.production.environment]
+  NODE_ENV = "production"
+
+# Deploy preview context  
+[context.deploy-preview]
+  command = "npm ci && npm run build"
+  
+[context.deploy-preview.environment]
+  NODE_ENV = "production"
+
+# Branch deploy context
+[context.branch-deploy]
+  command = "npm ci && npm run build"
+
+# Client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# JavaScript files
 [[headers]]
   for = "/assets/*.js"
   [headers.values]
     Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# CSS files  
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Content-Type = "text/css"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Image files
+[[headers]]
+  for = "/assets/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "*.js"
+  for = "/assets/*.jpg"
   [headers.values]
-    Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=31536000, immutable"
 
-[context.production.environment]
-  NODE_ENV = "production"
-
-[context.deploy-preview.environment]
-  NODE_ENV = "production"
+[[headers]]
+  for = "/assets/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
