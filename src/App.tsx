@@ -18,7 +18,6 @@ interface User {
   id: string;
   username: string;
   avatar_url: string | null;
-  last_seen: string | null;
 }
 
 function App() {
@@ -26,10 +25,14 @@ function App() {
   const [activeTab, setActiveTab] = useState('movies');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  // Error boundary
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading Entertainment Hub...</p>
+        </div>
       </div>
     );
   }

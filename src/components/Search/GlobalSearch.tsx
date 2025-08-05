@@ -70,7 +70,7 @@ export function GlobalSearch({ onSelectResult }: GlobalSearchProps) {
       // Search quotes
       const { data: quotes } = await supabase
         .from('quotes')
-        .select('*, profiles(username)')
+        .select('*, users(username)')
         .or(`content.ilike.%${query}%,author.ilike.%${query}%`)
         .limit(5);
 

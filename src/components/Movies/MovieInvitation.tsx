@@ -69,8 +69,8 @@ export function MovieInvitation({ movieTitle, movieUrl, onClose }: MovieInvitati
         .from('movie_invitations')
         .select(`
           *,
-          sender:users!movie_invitations_sender_id_fkey(username),
-          recipient:users!movie_invitations_recipient_id_fkey(username)
+          sender:sender_id(username),
+          recipient:recipient_id(username)
         `)
         .or(`sender_id.eq.${user?.id},recipient_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });

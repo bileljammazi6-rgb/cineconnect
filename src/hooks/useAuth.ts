@@ -47,6 +47,7 @@ export function useAuth() {
 
   const createUserProfile = async (user: User) => {
     try {
+      // First check if user already exists
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
@@ -54,22 +55,31 @@ export function useAuth() {
         .single();
 
       if (!existingUser) {
+        // Extract username from metadata or email
+        const username = user.user_metadata?.username || 
+                        user.email?.split('@')[0] || 
+                        'User';
+        
         const { error } = await supabase
           .from('users')
           .insert({
             id: user.id,
             email: user.email,
-            username: user.user_metadata?.username || user.email?.split('@')[0] || 'User',
+            username: username,
+            full_name: user.user_metadata?.full_name || null,
+            avatar_url: user.user_metadata?.avatar_url || null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
 
-        if (error && error.code !== '23505') { // Ignore duplicate key errors
+        if (error) {
           console.error('Error creating user profile:', error);
+          // Don't throw error, just log it
         }
       }
     } catch (error) {
       console.error('Error in createUserProfile:', error);
+      // Don't throw error, just log it
     }
   };
 

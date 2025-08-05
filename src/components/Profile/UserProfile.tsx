@@ -63,7 +63,9 @@ export function UserProfile() {
       const [messagesResult, quotesResult, gamesResult] = await Promise.all([
         supabase.from('messages').select('id').eq('sender_id', user?.id),
         supabase.from('quotes').select('id').eq('user_id', user?.id),
-        supabase.from('tic_tac_toe_games').select('id, winner, player_x, player_o').or(`player_x.eq.${user?.id},player_o.eq.${user?.id}`)
+        supabase.from('tic_tac_toe_games')
+          .select('id, winner, player_x, player_o')
+          .or(`player_x.eq.${user?.id},player_o.eq.${user?.id}`)
       ]);
 
       const gamesWon = gamesResult.data?.filter(game => 
@@ -75,7 +77,7 @@ export function UserProfile() {
         totalMessages: messagesResult.data?.length || 0,
         totalQuotes: quotesResult.data?.length || 0,
         gamesWon,
-        joinedDate: profile?.created_at || user?.created_at || ''
+        joinedDate: profile?.created_at || new Date().toISOString()
       });
     } catch (error) {
       console.error('Error fetching stats:', error);

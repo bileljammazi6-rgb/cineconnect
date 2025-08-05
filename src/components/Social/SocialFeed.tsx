@@ -98,7 +98,7 @@ export function SocialFeed() {
         .insert({
           user_id: user.id,
           content: newPost.trim(),
-          visibility
+          // Remove visibility field as it's not in the schema
         });
 
       if (error) throw error;
