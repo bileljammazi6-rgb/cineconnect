@@ -27,10 +27,33 @@ function App() {
   const [activeTab, setActiveTab] = useState('movies');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  // Environment check for critical variables
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    return (
+      <div className="min-h-screen bg-yellow-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+          <div className="text-6xl mb-4">⚙️</div>
+          <h1 className="text-2xl font-bold text-yellow-600 mb-4">Configuration Required</h1>
+          <div className="text-left space-y-2 text-sm mb-4 bg-gray-50 p-3 rounded">
+            <div>Supabase URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</div>
+            <div>Supabase Key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</div>
+            <div>Environment: {import.meta.env.MODE}</div>
+          </div>
+          <p className="text-gray-600 text-sm">
+            Please set the required environment variables in your Netlify deployment settings and redeploy.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading CineConnect...</p>
+        </div>
       </div>
     );
   }
