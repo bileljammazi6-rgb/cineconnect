@@ -99,6 +99,21 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
   const sendMessage = async (content: string) => {
     if (!content.trim() || !user) return;
 
+    // Input validation and sanitization
+    const sanitizedContent = content.trim();
+    
+    // Prevent messages that are too long
+    if (sanitizedContent.length > 1000) {
+      toast.error('Message is too long. Maximum 1000 characters allowed.');
+      return;
+    }
+    
+    // Prevent empty messages after sanitization
+    if (sanitizedContent.length === 0) {
+      toast.error('Cannot send empty message.');
+      return;
+    }
+
     setSending(true);
     try {
       const { error } = await supabase
@@ -106,7 +121,7 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
         .insert({
           sender_id: user.id,
           receiver_id: selectedUser.id,
-          content: content.trim(),
+          content: sanitizedContent,
         });
 
       if (error) throw error;
@@ -237,19 +252,25 @@ export function ChatWindow({ selectedUser }: ChatWindowProps) {
                 <Smile className="w-5 h-5" />
               </button>
             </div>
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-            />
+            <div className="relative">
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows={1}
+                maxLength={1000}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+              />
+              <div className="absolute bottom-1 right-2 text-xs text-gray-400">
+                {newMessage.length}/1000
+              </div>
+            </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}

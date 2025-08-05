@@ -19,10 +19,24 @@ export function ImageUpload({ onClose, onUpload }: ImageUploadProps) {
     const file = acceptedFiles[0];
     if (!file || !user) return;
 
+    // Additional file validation
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.');
+      return;
+    }
+
+    // Validate file size (already handled by dropzone config, but adding extra check)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size too large. Maximum 5MB allowed.');
+      return;
+    }
+
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      // Sanitize filename and add timestamp for uniqueness
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileName = `${user.id}/${Date.now()}_${sanitizedName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('chat-images')
@@ -36,9 +50,10 @@ export function ImageUpload({ onClose, onUpload }: ImageUploadProps) {
 
       onUpload(data.publicUrl);
       toast.success('Image uploaded successfully!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }

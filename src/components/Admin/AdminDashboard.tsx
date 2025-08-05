@@ -31,8 +31,8 @@ export function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Check if user is admin
-  const isAdmin = user?.email === 'psycolife123@gmail.com';
+  // Check if user is admin - using a more secure approach
+  const isAdmin = user?.user_metadata?.role === 'admin' || user?.app_metadata?.role === 'admin';
 
   useEffect(() => {
     if (isAdmin) {

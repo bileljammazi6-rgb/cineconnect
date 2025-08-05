@@ -12,7 +12,7 @@ import { TicTacToe } from './components/Games/TicTacToe';
 import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { UserProfile } from './components/Profile/UserProfile';
 import { SocialFeed } from './components/Social/SocialFeed';
-import { Chatbot } from './components/Chat/Chatbot';
+import { ChatbotFallbackOnly } from './components/Chat/ChatbotFallbackOnly';
 
 interface User {
   id: string;
@@ -57,7 +57,7 @@ function App() {
         return (
           <div className="p-6 bg-gray-50 min-h-full">
             <div className="max-w-4xl mx-auto h-[calc(100vh-200px)]">
-              <Chatbot />
+              <ChatbotFallbackOnly />
             </div>
           </div>
         );

@@ -1,0 +1,30 @@
+NETLIFY ENVIRONMENT VARIABLES
+==================================
+
+Go to Netlify Dashboard → Your Site → Site settings → Environment variables
+Add these one by one:
+
+Key: VITE_SUPABASE_URL
+Value: https://aflvesfnsfnoesb zxald.supabase.co
+
+Key: VITE_SUPABASE_ANON_KEY  
+Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbHZlc2Zuc2Zub2VzYnp4YWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1Mzc4OTcsImV4cCI6MjA2OTExMzg5N30.vyLhqih74l9JYWHLVjAslie6q2cak2F24oNOMqXjCRU
+
+Key: VITE_TMDB_API_KEY
+Value: your_tmdb_api_key_here
+
+Key: VITE_MAPBOX_ACCESS_TOKEN
+Value: your_mapbox_access_token_here
+
+Key: OPENAI_API_KEY
+Value: your_openai_api_key_here
+
+Key: NODE_VERSION
+Value: 18
+
+=== NOTES ===
+- Replace "your_tmdb_api_key_here" with your actual TMDB API key
+- Replace "your_mapbox_access_token_here" with your actual Mapbox token (optional)
+- Replace "your_openai_api_key_here" with your actual OpenAI key (optional)
+- The Supabase URL and key are already filled in with your new database
+- NODE_VERSION ensures consistent builds
