@@ -13,6 +13,7 @@ import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { UserProfile } from './components/Profile/UserProfile';
 import { SocialFeed } from './components/Social/SocialFeed';
 import { ChatbotFallbackOnly } from './components/Chat/ChatbotFallbackOnly';
+import GamesHub from './components/Games/GamesHub';
 
 
 interface User {
@@ -119,18 +120,7 @@ function App() {
           </div>
         );
       case 'games':
-        return (
-          <div className="p-6 bg-gray-50 min-h-full">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Games</h2>
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <div className="text-6xl mb-4">🎮</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">Games Coming Soon!</h3>
-                <p className="text-gray-500">Exciting games will be available in future updates.</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <GamesHub />;
       case 'profile':
         return <UserProfile />;
       case 'admin':
