@@ -13,7 +13,7 @@ import { AdminDashboard } from './components/Admin/AdminDashboard';
 import { UserProfile } from './components/Profile/UserProfile';
 import { SocialFeed } from './components/Social/SocialFeed';
 import { ChatbotFallbackOnly } from './components/Chat/ChatbotFallbackOnly';
-import { DiagnosticPanel } from './components/Debug/DiagnosticPanel';
+
 
 interface User {
   id: string;
@@ -62,23 +62,28 @@ function App() {
             </div>
           </div>
         );
-      case 'debug':
-        return (
-          <div className="p-6 bg-gray-50 min-h-full">
-            <DiagnosticPanel />
-          </div>
-        );
+
       case 'chat':
         return (
           <div className="flex h-full">
-            <ChatList 
-              onSelectUser={setSelectedUser} 
-              selectedUserId={selectedUser?.id}
-            />
+            {/* Mobile: Show only ChatList or ChatWindow */}
+            <div className={`${selectedUser ? 'hidden lg:flex' : 'flex'} lg:flex`}>
+              <ChatList 
+                onSelectUser={setSelectedUser} 
+                selectedUserId={selectedUser?.id}
+              />
+            </div>
+            
+            {/* Desktop: Always show, Mobile: Only when user selected */}
             {selectedUser ? (
-              <ChatWindow selectedUser={selectedUser} />
+              <div className={`flex-1 ${selectedUser ? 'flex' : 'hidden lg:flex'}`}>
+                <ChatWindow 
+                  selectedUser={selectedUser} 
+                  onBack={() => setSelectedUser(null)}
+                />
+              </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center bg-gray-50">
+              <div className="hidden lg:flex flex-1 items-center justify-center bg-gray-50">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">💬</span>
