@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 export function AuthForm() {
@@ -10,18 +10,26 @@ export function AuthForm() {
   const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       if (isSignUp) {
         await signUp(email, password, username);
       } else {
         await signIn(email, password);
+      }
+    } catch (err: any) {
+      if (err?.message?.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please double-check your credentials and try again. If you don\'t have an account, click "Create Account" below.');
+      } else {
+        setError(err?.message || 'An error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -51,6 +59,17 @@ export function AuthForm() {
             {isSignUp ? 'Join our community today' : 'Sign in to your account'}
           </p>
         </div>
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start space-x-3"
+          >
+            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-red-700">{error}</p>
+          </motion.div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && (
