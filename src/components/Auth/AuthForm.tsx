@@ -26,8 +26,8 @@ export function AuthForm() {
         await signIn(email, password);
       }
     } catch (err: any) {
-      if (err?.message?.includes('Invalid login credentials')) {
-        setError('Invalid email or password. Please double-check your credentials and try again. If you don\'t have an account, click "Create Account" below.');
+      if (err?.message?.includes('Invalid login credentials') || err?.message?.includes('invalid_credentials')) {
+        setError('The email or password you entered is incorrect. Please check your credentials and try again. If you don\'t have an account yet, click "Create Account" below to register.');
       } else {
         setError(err?.message || 'An error occurred. Please try again.');
       }
