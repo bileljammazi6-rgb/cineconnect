@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 
 // Mapbox configuration
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiYmlsZWxwc3ljbyIsImEiOiJjbWRrZmJ1bGcwdGtsMmpxdHB1eWcyZmxhIn0.kAfX4e7ZwoW-ARXd3C4sMw';
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
 
 interface UserLocation {
   id: string;

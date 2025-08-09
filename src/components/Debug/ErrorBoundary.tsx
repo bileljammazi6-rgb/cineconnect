@@ -63,6 +63,8 @@ class ErrorBoundary extends Component<Props, State> {
                   <div>Supabase URL: {import.meta.env.VITE_SUPABASE_URL ? '✅ Set' : '❌ Missing'}</div>
                   <div>Supabase Key: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing'}</div>
                   <div>TMDB Key: {import.meta.env.VITE_TMDB_API_KEY ? '✅ Set' : '⚠️ Optional'}</div>
+                  <div>Mapbox Token: {import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ? '✅ Set' : '⚠️ Optional'}</div>
+                  <div>OpenAI Key: {import.meta.env.VITE_OPENAI_ENABLED ? '✅ Enabled' : '⚠️ Optional'} (set OPENAI_API_KEY in serverless)</div>
                   <div>Environment: {import.meta.env.MODE}</div>
                 </div>
               </div>
