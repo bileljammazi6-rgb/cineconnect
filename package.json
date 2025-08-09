@@ -1,0 +1,15 @@
+{
+  "name": "cineconnect",
+  "version": "1.0.0",
+  "description": "CineConnect - Movie Games & Chat Platform",
+  "scripts": {
+    "build": "mkdir -p dist && cp index.html dist/ && cp -r assets dist/",
+    "dev": "echo 'Development server not needed for static deployment'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["movies", "games", "chat", "entertainment"],
+  "author": "CineConnect Team",
+  "license": "MIT"
+}
