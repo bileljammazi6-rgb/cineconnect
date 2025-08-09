@@ -6,15 +6,16 @@
 -- Run this script in your Supabase SQL Editor for a fresh setup
 
 -- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA public;
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA public;
 
 -- ===============================================
 -- TABLES
 -- ===============================================
 
 -- Users table with enhanced validation
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS public.users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text UNIQUE NOT NULL CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
   username text UNIQUE NOT NULL CHECK (username ~* '^[a-zA-Z0-9_]{3,20}$'),
@@ -30,10 +31,10 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- Messages table (fixed with receiver_id)
-CREATE TABLE IF NOT EXISTS messages (
+CREATE TABLE IF NOT EXISTS public.messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  receiver_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  sender_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  receiver_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   content text NOT NULL CHECK (length(content) BETWEEN 1 AND 1000),
   image_url text CHECK (image_url IS NULL OR image_url ~* '^https?://'),
   read boolean DEFAULT false,
@@ -43,19 +44,19 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- Followers/Following relationships
-CREATE TABLE IF NOT EXISTS follows (
+CREATE TABLE IF NOT EXISTS public.follows (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  follower_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  following_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  follower_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  following_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now(),
   UNIQUE(follower_id, following_id),
   CONSTRAINT no_self_follow CHECK (follower_id != following_id)
 );
 
 -- Posts for social feed
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE IF NOT EXISTS public.posts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   content text NOT NULL CHECK (length(content) BETWEEN 1 AND 2000),
   image_url text CHECK (image_url IS NULL OR image_url ~* '^https?://'),
   likes_count integer DEFAULT 0 CHECK (likes_count >= 0),
@@ -65,28 +66,28 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 -- Post likes
-CREATE TABLE IF NOT EXISTS post_likes (
+CREATE TABLE IF NOT EXISTS public.post_likes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  post_id uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  post_id uuid NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now(),
   UNIQUE(user_id, post_id)
 );
 
 -- Comments on posts
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE IF NOT EXISTS public.comments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  post_id uuid NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  post_id uuid NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
   content text NOT NULL CHECK (length(content) BETWEEN 1 AND 500),
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
 
 -- User locations for map feature
-CREATE TABLE IF NOT EXISTS user_locations (
+CREATE TABLE IF NOT EXISTS public.user_locations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   latitude double precision NOT NULL CHECK (latitude BETWEEN -90 AND 90),
   longitude double precision NOT NULL CHECK (longitude BETWEEN -180 AND 180),
   address text CHECK (length(address) <= 200),
@@ -96,9 +97,9 @@ CREATE TABLE IF NOT EXISTS user_locations (
 );
 
 -- Notifications
-CREATE TABLE IF NOT EXISTS notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   type text NOT NULL CHECK (type IN ('like', 'comment', 'follow', 'message')),
   title text NOT NULL CHECK (length(title) <= 100),
   message text NOT NULL CHECK (length(message) <= 500),
@@ -107,9 +108,9 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 
 -- Movie favorites
-CREATE TABLE IF NOT EXISTS movie_favorites (
+CREATE TABLE IF NOT EXISTS public.movie_favorites (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   movie_id integer NOT NULL,
   movie_title text NOT NULL CHECK (length(movie_title) <= 200),
   poster_path text,
@@ -118,19 +119,19 @@ CREATE TABLE IF NOT EXISTS movie_favorites (
 );
 
 -- Movie Polls Tables
-CREATE TABLE IF NOT EXISTS movie_polls (
+CREATE TABLE IF NOT EXISTS public.movie_polls (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL CHECK (length(title) BETWEEN 1 AND 200),
   description text CHECK (length(description) <= 1000),
   poll_type text NOT NULL CHECK (poll_type IN ('movie_night', 'favorite_movie', 'genre_preference', 'watch_time')),
-  created_by uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_by uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   ends_at timestamptz NOT NULL,
   is_active boolean DEFAULT true
 );
 
-CREATE TABLE IF NOT EXISTS poll_options (
+CREATE TABLE IF NOT EXISTS public.poll_options (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   poll_id uuid NOT NULL REFERENCES movie_polls(id) ON DELETE CASCADE,
   text text NOT NULL CHECK (length(text) BETWEEN 1 AND 500),
@@ -140,11 +141,11 @@ CREATE TABLE IF NOT EXISTS poll_options (
   created_at timestamptz DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS poll_votes (
+CREATE TABLE IF NOT EXISTS public.poll_votes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   poll_id uuid NOT NULL REFERENCES movie_polls(id) ON DELETE CASCADE,
   option_id uuid NOT NULL REFERENCES poll_options(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now(),
   UNIQUE(poll_id, user_id)
 );
@@ -209,36 +210,36 @@ CREATE INDEX IF NOT EXISTS idx_poll_votes_option_id ON poll_votes(option_id);
 -- ===============================================
 
 -- Enable RLS on all tables
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE post_likes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_locations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE movie_favorites ENABLE ROW LEVEL SECURITY;
-ALTER TABLE movie_polls ENABLE ROW LEVEL SECURITY;
-ALTER TABLE poll_options ENABLE ROW LEVEL SECURITY;
-ALTER TABLE poll_votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.follows ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_locations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.movie_favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.movie_polls ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.poll_options ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.poll_votes ENABLE ROW LEVEL SECURITY;
 
 -- ===============================================
 -- RLS POLICIES
 -- ===============================================
 
 -- Users policies
-DROP POLICY IF EXISTS "Users can view all profiles" ON users;
+DROP POLICY IF EXISTS "Users can view all profiles" ON public.users;
 CREATE POLICY "Users can view all profiles"
-  ON users FOR SELECT TO authenticated USING (true);
+  ON public.users FOR SELECT TO public USING (true);
 
-DROP POLICY IF EXISTS "Users can update own profile" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
 CREATE POLICY "Users can update own profile"
-  ON users FOR UPDATE TO authenticated 
+  ON public.users FOR UPDATE TO authenticated 
   USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
-DROP POLICY IF EXISTS "Users can insert own profile" ON users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
 CREATE POLICY "Users can insert own profile"
-  ON users FOR INSERT TO authenticated 
+  ON public.users FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = id);
 
 -- Messages policies
@@ -265,145 +266,145 @@ CREATE POLICY "Users can delete own messages"
 -- Posts policies
 DROP POLICY IF EXISTS "Anyone can view posts" ON posts;
 CREATE POLICY "Anyone can view posts"
-  ON posts FOR SELECT TO authenticated USING (true);
+  ON public.posts FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Users can create posts" ON posts;
 CREATE POLICY "Users can create posts"
-  ON posts FOR INSERT TO authenticated 
+  ON public.posts FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can update own posts" ON posts;
 CREATE POLICY "Users can update own posts"
-  ON posts FOR UPDATE TO authenticated 
+  ON public.posts FOR UPDATE TO authenticated 
   USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can delete own posts" ON posts;
 CREATE POLICY "Users can delete own posts"
-  ON posts FOR DELETE TO authenticated 
+  ON public.posts FOR DELETE TO authenticated 
   USING (auth.uid() = user_id);
 
 -- Post likes policies
 DROP POLICY IF EXISTS "Anyone can view likes" ON post_likes;
 CREATE POLICY "Anyone can view likes"
-  ON post_likes FOR SELECT TO authenticated USING (true);
+  ON public.post_likes FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Users can like posts" ON post_likes;
 CREATE POLICY "Users can like posts"
-  ON post_likes FOR INSERT TO authenticated 
+  ON public.post_likes FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can unlike posts" ON post_likes;
 CREATE POLICY "Users can unlike posts"
-  ON post_likes FOR DELETE TO authenticated 
+  ON public.post_likes FOR DELETE TO authenticated 
   USING (auth.uid() = user_id);
 
 -- Comments policies
 DROP POLICY IF EXISTS "Anyone can view comments" ON comments;
 CREATE POLICY "Anyone can view comments"
-  ON comments FOR SELECT TO authenticated USING (true);
+  ON public.comments FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Users can create comments" ON comments;
 CREATE POLICY "Users can create comments"
-  ON comments FOR INSERT TO authenticated 
+  ON public.comments FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can update own comments" ON comments;
 CREATE POLICY "Users can update own comments"
-  ON comments FOR UPDATE TO authenticated 
+  ON public.comments FOR UPDATE TO authenticated 
   USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can delete own comments" ON comments;
 CREATE POLICY "Users can delete own comments"
-  ON comments FOR DELETE TO authenticated 
+  ON public.comments FOR DELETE TO authenticated 
   USING (auth.uid() = user_id);
 
 -- Follows policies
 DROP POLICY IF EXISTS "Anyone can view follows" ON follows;
 CREATE POLICY "Anyone can view follows"
-  ON follows FOR SELECT TO authenticated USING (true);
+  ON public.follows FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Users can follow others" ON follows;
 CREATE POLICY "Users can follow others"
-  ON follows FOR INSERT TO authenticated 
+  ON public.follows FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = follower_id);
 
 DROP POLICY IF EXISTS "Users can unfollow" ON follows;
 CREATE POLICY "Users can unfollow"
-  ON follows FOR DELETE TO authenticated 
+  ON public.follows FOR DELETE TO authenticated 
   USING (auth.uid() = follower_id);
 
 -- User locations policies
 DROP POLICY IF EXISTS "Users can view all locations" ON user_locations;
 CREATE POLICY "Users can view all locations"
-  ON user_locations FOR SELECT TO authenticated USING (true);
+  ON public.user_locations FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Users can manage own location" ON user_locations;
 CREATE POLICY "Users can manage own location"
-  ON user_locations FOR ALL TO authenticated 
+  ON public.user_locations FOR ALL TO authenticated 
   USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- Notifications policies
 DROP POLICY IF EXISTS "Users can view own notifications" ON notifications;
 CREATE POLICY "Users can view own notifications"
-  ON notifications FOR SELECT TO authenticated 
+  ON public.notifications FOR SELECT TO authenticated 
   USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can update own notifications" ON notifications;
 CREATE POLICY "Users can update own notifications"
-  ON notifications FOR UPDATE TO authenticated 
+  ON public.notifications FOR UPDATE TO authenticated 
   USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "System can create notifications" ON notifications;
 CREATE POLICY "System can create notifications"
-  ON notifications FOR INSERT TO authenticated 
+  ON public.notifications FOR INSERT TO authenticated 
   WITH CHECK (true);
 
 -- Movie favorites policies
 DROP POLICY IF EXISTS "Users can view own favorites" ON movie_favorites;
 CREATE POLICY "Users can view own favorites"
-  ON movie_favorites FOR SELECT TO authenticated 
+  ON public.movie_favorites FOR SELECT TO authenticated 
   USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can manage own favorites" ON movie_favorites;
 CREATE POLICY "Users can manage own favorites"
-  ON movie_favorites FOR ALL TO authenticated 
+  ON public.movie_favorites FOR ALL TO authenticated 
   USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- Movie Polls Policies
 DROP POLICY IF EXISTS "Anyone can view active polls" ON movie_polls;
 CREATE POLICY "Anyone can view active polls" 
-  ON movie_polls FOR SELECT TO authenticated 
+  ON public.movie_polls FOR SELECT TO authenticated 
   USING (true);
 
 DROP POLICY IF EXISTS "Authenticated users can create polls" ON movie_polls;
 CREATE POLICY "Authenticated users can create polls" 
-  ON movie_polls FOR INSERT TO authenticated 
+  ON public.movie_polls FOR INSERT TO authenticated 
   WITH CHECK (auth.uid() = created_by);
 
 DROP POLICY IF EXISTS "Poll creators can update their polls" ON movie_polls;
 CREATE POLICY "Poll creators can update their polls" 
-  ON movie_polls FOR UPDATE TO authenticated 
+  ON public.movie_polls FOR UPDATE TO authenticated 
   USING (auth.uid() = created_by);
 
 DROP POLICY IF EXISTS "Poll creators can delete their polls" ON movie_polls;
 CREATE POLICY "Poll creators can delete their polls" 
-  ON movie_polls FOR DELETE TO authenticated 
+  ON public.movie_polls FOR DELETE TO authenticated 
   USING (auth.uid() = created_by);
 
 -- Poll Options Policies
 DROP POLICY IF EXISTS "Anyone can view poll options" ON poll_options;
 CREATE POLICY "Anyone can view poll options" 
-  ON poll_options FOR SELECT TO authenticated 
+  ON public.poll_options FOR SELECT TO authenticated 
   USING (true);
 
 DROP POLICY IF EXISTS "Poll creators can manage options" ON poll_options;
 CREATE POLICY "Poll creators can manage options" 
-  ON poll_options FOR ALL TO authenticated
+  ON public.poll_options FOR ALL TO authenticated
   USING (
     EXISTS (
-      SELECT 1 FROM movie_polls 
-      WHERE movie_polls.id = poll_options.poll_id 
-      AND movie_polls.created_by = auth.uid()
+      SELECT 1 FROM public.movie_polls 
+      WHERE public.movie_polls.id = public.poll_options.poll_id 
+      AND public.movie_polls.created_by = auth.uid()
     )
   );
 
@@ -442,57 +443,83 @@ END;
 $$ language 'plpgsql';
 
 -- Triggers for updated_at
-DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+DROP TRIGGER IF EXISTS update_users_updated_at ON public.users;
 CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
+    BEFORE UPDATE ON public.users 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_messages_updated_at ON messages;
+DROP TRIGGER IF EXISTS update_messages_updated_at ON public.messages;
 CREATE TRIGGER update_messages_updated_at 
-    BEFORE UPDATE ON messages 
+    BEFORE UPDATE ON public.messages 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_posts_updated_at ON posts;
+DROP TRIGGER IF EXISTS update_posts_updated_at ON public.posts;
 CREATE TRIGGER update_posts_updated_at 
-    BEFORE UPDATE ON posts 
+    BEFORE UPDATE ON public.posts 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_comments_updated_at ON comments;
+DROP TRIGGER IF EXISTS update_comments_updated_at ON public.comments;
 CREATE TRIGGER update_comments_updated_at 
-    BEFORE UPDATE ON comments 
+    BEFORE UPDATE ON public.comments 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
-DROP TRIGGER IF EXISTS update_user_locations_updated_at ON user_locations;
+DROP TRIGGER IF EXISTS update_user_locations_updated_at ON public.user_locations;
 CREATE TRIGGER update_user_locations_updated_at 
-    BEFORE UPDATE ON user_locations 
+    BEFORE UPDATE ON public.user_locations 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to handle user registration
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
+DECLARE
+  base_username text;
+  safe_username text;
 BEGIN
+  -- Derive base username from metadata or email local-part
+  base_username := COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1));
+  base_username := lower(base_username);
+  
+  -- Sanitize to allowed chars (letters, numbers, underscore)
+  safe_username := regexp_replace(base_username, '[^a-z0-9_]+', '_', 'g');
+  safe_username := regexp_replace(safe_username, '^_+|_+$', '', 'g');
+
+  -- Fallbacks to satisfy length constraint
+  IF safe_username IS NULL OR length(safe_username) = 0 THEN
+    safe_username := 'user_' || substr(NEW.id::text, 1, 6);
+  END IF;
+  IF length(safe_username) < 3 THEN
+    safe_username := safe_username || repeat('_', 3 - length(safe_username));
+  END IF;
+  safe_username := substring(safe_username from 1 for 20);
+
+  -- Ensure uniqueness; append short id if needed
+  IF EXISTS (SELECT 1 FROM users WHERE username = safe_username) THEN
+    safe_username := safe_username || '_' || substr(NEW.id::text, 1, 4);
+    safe_username := substring(safe_username from 1 for 20);
+  END IF;
+
   INSERT INTO users (id, email, username, full_name, avatar_url)
   VALUES (
     NEW.id,
     NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    safe_username,
     COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL)
   );
   RETURN NEW;
 END;
-$$ language 'plpgsql' security definer;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Trigger for new user registration
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Function to update post likes count
 CREATE OR REPLACE FUNCTION update_post_likes_count()
